@@ -486,13 +486,13 @@
                      [(foo x) (bar x)])))))
   (is (eq [:foo 2]
           (jsv! '(do (defprotocol IFoo (foo [_]) (bar [_]))
-                     (deftype Foo [^:mutable x]
+                     (deftype Foo [^:mutable my-x]
                        IFoo
-                       (foo [_] [:foo x])
+                       (foo [_] [:foo my-x])
                        (bar [_] :bar))
-                     (def x  (->Foo 1))
-                     (set! (.-x x) 2)
-                     (foo x)))))
+                     (def o (->Foo 1))
+                     (set! (.-my-x o) 2)
+                     (foo o)))))
   (is (eq [:bar 1 2]
           (jsv! '(do (defprotocol IFoo (foo [_]) (bar [_] [_ a b]))
                      (deftype Foo []
@@ -1880,7 +1880,8 @@
   (is (eq "foo2" (jsv! "((fn [char char] (str :foo char)) 1 2)"))))
 
 (deftest munge-fn-name-test
-  (is (fn? (jsv! "((((fn handle-enter [] handle-enter))))"))))
+  (is (fn? (jsv! "((((fn handle-enter [] handle-enter))))")))
+  (is (false? (str/includes? (jss! "(fn my-fn ([_] 1) ([_ _] 2))") "my-fn"))))
 
 (deftest defonce-test
   (is (eq 1 (jsv! "(defonce x 1) x"))))
